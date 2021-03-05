@@ -1,0 +1,37 @@
+button {
+    height: 20px;
+    border: none;
+    border-radius: 5%;
+    cursor: pointer;
+}
+
+.App {
+    text-align: center;
+}
+.deleteTodo {
+    float: right;
+}
+.todo {
+    width: 100%;
+    display: inline-block;
+    margin: 5px 0;
+
+}
+.task {
+    float: left;
+}
+#header {
+    font-size: 40px;
+}
+#inputBox {
+    border: solid 2px;
+    background-color: #fefefe;
+}
+#todos {
+    background-color: #eee;
+    width: 50%;
+    text-align: center;
+    display: inline-block;
+    margin: 10px;
+    padding: 10px;
+}
