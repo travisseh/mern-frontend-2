@@ -1,51 +1,26 @@
 import React, { Component } from "react";
-import axios from "axios";
-import Todos from "./Components/Todos";
-import Input from "./Components/Input";
-import config from "./config";
-import './App.css'
+// import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Home from "./pages/home";
+import Login from "./pages/Login";
+import { Router, Route, Switch } from "react-router";
+import { createBrowserHistory } from 'history';
+
+const history = createBrowserHistory()
 
 class App extends Component {
-  state = {
-    todos: [],
-  };
 
-  login = () => {
-    console.log("hel")
-    axios.post(`${config.backend}/auth/google`)
-  }
+  checkAuth = () => localStorage.getItem('accessToken') ? <Home/> : <Login/>
 
-  test = () => console.log("testststt")
-
-  componentDidMount() {
-    this.getTodos();
-  }
-  getTodos = () => {
-    axios.get(`${config.backend}/api/todos`).then((res) => {
-      if (res.data) {
-        this.setState({ todos: res.data });
-      }
-    });
-  };
-  deleteTodo = (todo_id) => {
-    axios.delete(`${config.backend}/api/todos/${todo_id}`)
-      .then((res) => {
-        if (res.data) {
-          this.getTodos();
-        }
-      })
-      .catch((err) => console.log(err));
-  };
   render() {
     return (
-      <div className="App">
-        <div id="header">My Todo List</div>
-        <div>
-          <button onClick={() => this.test()}>Login</button>
-        </div>
-        <Input getTodos={this.getTodos}/>
-        <Todos todos={this.state.todos} deleteTodo={this.deleteTodo}/>
-      </div>
+      <Router history={history}>
+
+          <Switch>
+            <Route path="/" component={() => this.checkAuth()} history={history} />
+            <Route exact path="/home" component={Home} history={history} />
+          </Switch>
+
+      </Router>
     );
   }
 }

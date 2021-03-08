@@ -7,9 +7,15 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
+    "caniuse-lite": "^1.0.30001196",
+    "history": "^5.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-google-login": "^5.2.2",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.1",
+    "yarn": "^1.22.10"
   },
   "scripts": {
     "start": "react-scripts start",

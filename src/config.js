@@ -1,3 +1,3 @@
 module.exports = {
-    backend: 'https://mern-backend-1.travissehansen.repl.co'
+    backend: 'https://Kino1-2.travissehansen.repl.co'
 }
