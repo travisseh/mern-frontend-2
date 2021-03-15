@@ -1,40 +1,35 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import axios from "axios";
 import Todos from "../Components/Todos";
 import Input from "../Components/Input";
 import config from "../config";
 import '../App.css'
+import { useHistory } from "react-router-dom";
 
-class Home extends Component {
-  state = {
-    todos: [],
-  };
+const  Home = () => {
+  const history = useHistory()
 
-  login = () => {
+  const [todos, setTodos] = useState([])
+
+  const login = () => {
     console.log("hel")
     axios.get(`${config.backend}/auth/google`)
   }
 
-  logout = () => {
-    const {history} = this.props;
+  const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('user')
-    history.push('/')
+    history.push('/login')
   }
 
-  test = () => console.log("testststt")
-
-  componentDidMount() {
-    this.getTodos();
-  }
-  getTodos = () => {
+  const getTodos = () => {
     axios.get(`${config.backend}/api/todos`).then((res) => {
       if (res.data) {
         this.setState({ todos: res.data });
       }
     });
   };
-  deleteTodo = (todo_id) => {
+  const deleteTodo = (todo_id) => {
     axios.delete(`${config.backend}/api/todos/${todo_id}`)
       .then((res) => {
         if (res.data) {
@@ -43,20 +38,21 @@ class Home extends Component {
       })
       .catch((err) => console.log(err));
   };
-  render() {
-const {history} = this.props;
-console.log(history, "history")
+
+  useEffect(() => {
+    return getTodos()
+  },[])
+
     return (
       <div className="App">
         <div id="header">My Todo List</div>
         <div>
-          <button onClick={() => this.logout()}>Logout</button>
+          <button onClick={() => logout()}>Logout</button>
         </div>
-        <Input getTodos={this.getTodos}/>
-        <Todos todos={this.state.todos} deleteTodo={this.deleteTodo}/>
+        <Input getTodos={() => getTodos()}/>
+        
       </div>
     );
-  }
 }
 
 export default Home;
