@@ -3,10 +3,30 @@ import axios from "axios";
 import config from "../config";
 import '../App.css'
 import { Link } from "react-router-dom";
+import styled from 'styled-components';
 import GoogleLogin from 'react-google-login';
 // import history from '../utils/history.js'
 import { useHistory } from 'react-router-dom';
 
+
+// const Wrapper = styled.div`
+// 	background: #fff;
+// 	height: 92vh;
+// `;
+
+// const ButtonContainer = styled.div`
+// 	flex: 1;
+// 	margin-top: 16px;
+// `;
+
+// const CustomButton = styled(Button)`
+// 	height: 40px !important;
+// 	display: flex !important;
+// 	flex: 1;
+// 	border: 1px solid rgba(16, 22, 26, 0.2) !important;
+// 	box-sizing: border-box !important;
+// 	border-radius: 3px !important;
+// `;
 
 const Login = (props) => {
 
@@ -15,8 +35,8 @@ const Login = (props) => {
 const history = useHistory();
 
   const responseGoogleSuccess = (response) => {
-    // const {history} = this.props
   localStorage.setItem("accessToken", response.accessToken,);localStorage.setItem("user", response.profileObj,)
+  axios.post(`${config.backend}/login`, {profile: response.profileObj}).then((res) => console.log("response", res))
   history.push('/home')
   }
 
@@ -26,7 +46,7 @@ const history = useHistory();
 
   const login = () => {
     console.log("hel")
-    axios.get(`${config.backend}/auth/google`)
+    axios.post(`${config.backend}/test`, {test: "test"})
   }
 
 
@@ -34,15 +54,20 @@ const history = useHistory();
       <div className="App">
         <div id="header">Login</div>
         <div>
+        <div style={{marginBottom: 24}}>Log into Emotion Trainer</div>
         <GoogleLogin
     clientId="424231771518-2jbqp4946khki5j3b94pbb9ermuh6uel.apps.googleusercontent.com"
-    buttonText="Login"
+    buttonText="Login with Google"
     onSuccess={responseGoogleSuccess}
     onFailure={responseGoogleFail}
     cookiePolicy={'single_host_origin'}
-  />,
-          <button onClick={() => login()}>Login</button>
-           <Link to="/home">Homeeee</Link>
+    icon={false}
+  />
+  
+          
+        </div>
+        <div style={{marginTop: 16}}>
+        <Link to="/home"> Go to Home</Link>
         </div>
       </div>
     );

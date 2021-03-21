@@ -1,3 +1,3 @@
 module.exports = {
-    backend: 'https://Kino1-2.travissehansen.repl.co'
+    backend: 'https://emotion-trainer-backend.travissehansen.repl.co/api'
 }
