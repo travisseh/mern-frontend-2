@@ -11,7 +11,7 @@ import emotionList3 from '../utils/emotionList3';
 import {capitalize} from '../utils/functions';
 
 
-import { Select, InputLabel, TextField, MenuItem, FormControl, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormLabel, RadioGroup, Radio, FormControlLabel, Card, CardActions, CardContent, Typography, Box, FormHelperText } from '@material-ui/core';
+import { Select, InputLabel, TextField, MenuItem, FormControl, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormLabel, RadioGroup, Radio, FormControlLabel, Card, CardActions, CardContent, Typography, Box, FormHelperText, Tabs, Tab } from '@material-ui/core';
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
