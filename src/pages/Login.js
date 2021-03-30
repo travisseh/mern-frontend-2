@@ -9,24 +9,6 @@ import GoogleLogin from 'react-google-login';
 import { useHistory } from 'react-router-dom';
 
 
-// const Wrapper = styled.div`
-// 	background: #fff;
-// 	height: 92vh;
-// `;
-
-// const ButtonContainer = styled.div`
-// 	flex: 1;
-// 	margin-top: 16px;
-// `;
-
-// const CustomButton = styled(Button)`
-// 	height: 40px !important;
-// 	display: flex !important;
-// 	flex: 1;
-// 	border: 1px solid rgba(16, 22, 26, 0.2) !important;
-// 	box-sizing: border-box !important;
-// 	border-radius: 3px !important;
-// `;
 
 const Login = (props) => {
 
@@ -35,8 +17,10 @@ const Login = (props) => {
 const history = useHistory();
 
   const responseGoogleSuccess = (response) => {
+    console.log("hello",response.profileObj)
   localStorage.setItem("accessToken", response.accessToken,);localStorage.setItem("user", response.profileObj,)
-  axios.post(`${config.backend}/login`, {profile: response.profileObj}).then((res) => console.log("response", res))
+  localStorage.setItem("userId", response.profileObj.googleId,)
+  axios.post(`${config.backend}/login`, {profile: response.profileObj}).then((res) => localStorage.setItem("_id", res.data._id))
   history.push('/home')
   }
 
@@ -52,9 +36,9 @@ const history = useHistory();
 
     return (
       <div className="App">
-        <div id="header">Login</div>
+        <div id="header">Emotion Trainer</div>
         <div>
-        <div style={{marginBottom: 24}}>Log into Emotion Trainer</div>
+        <div style={{marginBottom: 24, marginTop: 16}}>Learn to manage your strong emotions in a healthy way</div>
         <GoogleLogin
     clientId="424231771518-2jbqp4946khki5j3b94pbb9ermuh6uel.apps.googleusercontent.com"
     buttonText="Login with Google"
@@ -67,7 +51,6 @@ const history = useHistory();
           
         </div>
         <div style={{marginTop: 16}}>
-        <Link to="/home"> Go to Home</Link>
         </div>
       </div>
     );

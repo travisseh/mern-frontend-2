@@ -1,7 +1,5 @@
 import React, { Component, useState, useEffect, useReducer } from "react";
 import axios from "axios";
-import Todos from "../Components/Todos";
-import Input from "../Components/Input";
 import config from "../config";
 import '../App.css'
 import Button from '@material-ui/core/Button';
@@ -9,20 +7,36 @@ import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useTheme } from '@material-ui/core/styles';
-import emotionList3 from '../utils/emotionList3'
+import emotionList3 from '../utils/emotionList3';
+import {capitalize} from '../utils/functions';
 
 
-import { Select, InputLabel, TextField, MenuItem, FormControl, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { Select, InputLabel, TextField, MenuItem, FormControl, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormLabel, RadioGroup, Radio, FormControlLabel, Card, CardActions, CardContent, Typography, Box, FormHelperText } from '@material-ui/core';
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
+  box: {
+    display: "inline-block",
+  },
+  card: {
+    minWidth: 275,
+    maxWidth: 500,
+    marginTop: 16,
+  },
+  title: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
   formControl: {
-    margin: theme.spacing(1),
+    // margin: theme.spacing(1),
     minWidth: 120
   },
   selectEmpty: {
     marginTop: theme.spacing(2)
-  }
+  },
+  pos: {
+    marginBottom: 8,
+  },
 }));
 
 const Home = () => {
@@ -31,19 +45,10 @@ const Home = () => {
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
 
-  const [emotions, setEmotions] = useState([])
-  const [inputValue, setInputValue] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [primaryEmotion, setPrimaryEmotion] = useState('')
-  const [secondaryEmotion, setSecondaryEmotion] = useState('')
-  const [tertiaryEmotion, setTertiaryEmotion] = useState('')
-
-  // const [state, setState] = useReducer(
-  //   (state, newState) => ({...state, ...newState}),
-  //   {loading: true, data: null, primaryEmotion: '', secondaryEmotion: '', tertiaryEmotion: ''}
-  // )
-
-  console.log("emotions", emotions)
+  const [state, setState] = useReducer(
+    (state, newState) => ({ ...state, ...newState }),
+    { loading: true, data: null, primaryEmotion: '', secondaryEmotion: '', tertiaryEmotion: '', belief: '', beliefType: '', action: '', tellPart: '', selectedEmotion: '', modalOpen: false, emotions: [] }
+  )
 
   const login = () => {
     console.log("hel")
@@ -53,16 +58,22 @@ const Home = () => {
   const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('user')
-    history.push('/login')
+    localStorage.removeItem('userId')
+    history.push('/')
+    window.location.reload(false)
   }
 
-  const getEmotions = () => {
-    axios.get(`${config.backend}/emotions`).then((res) => {
+  const getEmotions = async () => {
+    const userId = await localStorage.getItem('_id')
+    console.log("userId from local", userId)
+    axios.get(`${config.backend}/emotions?userId=${userId}`).then((res) => {
       if (res.data) {
-        setEmotions(res.data);
+        console.log("response", res.data)
+        setState({ emotions: res.data });
       }
     });
   };
+
   const deleteEmotion = (emotionId) => {
     console.log("hello", emotionId)
     console.log(`${config.backend}/emotions/${emotionId}`)
@@ -77,14 +88,25 @@ const Home = () => {
   };
 
 
-  const addEmotion = () => {
+  const addEmotion = async () => {
     console.log("hello")
-    const emotion = { emotion: inputValue };
+    const userId = await localStorage.getItem('_id')
+    const emotion = {
+      selectedEmotion: state.selectedEmotion,
+      primaryEmotion: state.primaryEmotion,
+      secondaryEmotion: state.secondaryEmotion,
+      tertiaryEmotion: state.tertiaryEmotion,
+      tellPart: state.tellPart,
+      beliefType: state.beliefType,
+      belief: state.belief,
+      action: state.action,
+      userId: userId,
+    };
     axios.post(`${config.backend}/emotions`, emotion).then((res) => {
       console.log(res, "res")
       if (res.data) {
         getEmotions();
-        setInputValue('');
+        setState({ selectedEmotion: '', primaryEmotion: '', secondaryEmotion: '', tertiaryEmotion: '', belief: '', beliefType: '', tellPart: '', action: '', modalOpen: false });
       }
     });
   };
@@ -110,81 +132,132 @@ const Home = () => {
     <div className="App">
       <div id="header">Emotions</div>
       <div>
-        <Link to="/login" style={{ marginRight: 16 }}> Go to Login</Link>
-        <Button onClick={() => logout()} variant="contained" color="primary">Logout</Button>
+        <Button onClick={() => logout()} variant="contained" color="primary" style={{marginTop: 16}}>Logout</Button>
         <div>
-          <Button variant="outlined" color="primary" onClick={() => setModalOpen(true)}>Add Emotion </Button>
+          <Button variant="outlined" color="primary" onClick={() => setState({ modalOpen: true })} style={{ marginTop: 16 }} >Add Emotion </Button>
         </div>
       </div>
-      <Input />
-      <div id="input" style={{ marginTop: 16 }}>
-        <input id="inputBox" type="text" onChange={(e) => setInputValue(e.target.value)} placeholder="Enter an emotion..." value={inputValue} />
-        <button onClick={() => addEmotion()} id="addTodo">Add Emotion</button>
-      </div>
-      {emotions.length > 0 && (
-        <div>
-          {emotions.map(emotion => {
-            return <div onMouseOver={hover} onMouseOut={stopHover} onClick={() => deleteEmotion(emotion._id)}>{emotion.type}</div>
+      {state.emotions.length > 0 ? (
+        <Box m="auto" className={classes.box}>
+          {state.emotions.map(emotion => {
+            return (
+              
+              <Card className={classes.card} variant="outlined">
+                <CardContent>
+                  <Typography className={classes.pos} color="textSecondary" gutterBottom>
+                    {emotion.selectedEmotion}
+                  </Typography>
+                  <Typography className={classes.title} color="textSecondary">
+                    {capitalize(emotion.beliefType)}
+                  </Typography>
+                  <Typography variant="body2" component="p">
+                    {emotion.belief}
+                  </Typography>
+                  <Typography variant="body2" component="p" style={{marginTop: 8}}>
+                    {emotion.beliefType === "authentic" ? emotion.action : emotion.tellPart}
+                  </Typography>
+                </CardContent>
+              </Card>
+            )
           })}
-        </div>
-      )}
+        </Box>
+      ): (<div style={{marginTop: 24}}>Add an emotion to get started!</div>)}
 
-      <Dialog fullScreen={fullScreen} open={modalOpen} onClose={() => setModalOpen(false)} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+      <Dialog fullScreen={fullScreen} open={state.modalOpen} onClose={() => setState({ modalOpen: false })} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add Emotion</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To subscribe to this website, please enter your email address here. We will send updates
-            occasionally.
+            Fill out the fields below as honestly and accurately as possible.
           </DialogContentText>
           <FormControl variant="outlined" className={classes.formControl}>
             <InputLabel id="dem0-simple-select-outlined-label">Emotion</InputLabel>
-            <Select value={primaryEmotion} onChange={(e) => setPrimaryEmotion(e.target.value)} label="Emotion">
+            <Select value={state.primaryEmotion} onChange={(e) => setState({ primaryEmotion: e.target.value, secondaryEmotion: '', tertiaryEmotion: '', selectedEmotion: e.target.value })} label="Emotion">
               {emotionList3.map((emotion) => {
                 return <MenuItem value={emotion.name}>{emotion.name}</MenuItem>
               })}
             </Select>
           </FormControl>
-          {primaryEmotion && (
-             <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="dem0-simple-select-outlined-label">Sub-Emotion</InputLabel>
-            <Select value={secondaryEmotion} onChange={(e) => setSecondaryEmotion(e.target.value)} label="Secondary Emotion">
-              {emotionList3.filter((emotion) => {
-                return emotion.name === primaryEmotion;
-              })[0].list.map((emotion2) => {
-                return <MenuItem value={emotion2.name}>{emotion2.name}</MenuItem>
-              })}
-            </Select>
-          </FormControl>
+          {state.primaryEmotion && (
+            <FormControl variant="outlined" className={classes.formControl}>
+              <InputLabel id="dem0-simple-select-outlined-label">Sub-Emotion</InputLabel>
+              <Select value={state.secondaryEmotion} onChange={(e) => setState({ secondaryEmotion: e.target.value, tertiaryEmotion: '', selectedEmotion: e.target.value })} label="Secondary Emotion">
+                {emotionList3.filter((emotion) => {
+                  return emotion.name === state.primaryEmotion;
+                })[0].list.map((emotion2) => {
+                  return <MenuItem value={emotion2.name}>{emotion2.name}</MenuItem>
+                })}
+              </Select>
+            </FormControl>
           )}
-          {primaryEmotion && secondaryEmotion && (
-             <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="dem0-simple-select-outlined-label">Final-Emotion</InputLabel>
-            <Select value={tertiaryEmotion} onChange={(e) => setTertiaryEmotion(e.target.value)} label="Tertiary Emotion">
-              {emotionList3.filter((emotion) => {
-                return emotion.name === primaryEmotion;
-              })[0].list.filter((emotion2) => {
-                return emotion2.name === secondaryEmotion
-              })[0].list.map((emotion3) => {
-                return <MenuItem value={emotion3.name}>{emotion3.name}</MenuItem>
-              })}
-            </Select>
-          </FormControl>
+          {state.primaryEmotion && state.secondaryEmotion && (
+            <FormControl variant="outlined" className={classes.formControl}>
+              <InputLabel id="dem0-simple-select-outlined-label">Final-Emotion</InputLabel>
+              <Select value={state.tertiaryEmotion} onChange={(e) => setState({ tertiaryEmotion: e.target.value, selectedEmotion: e.target.value })} label="Tertiary Emotion">
+                {emotionList3.filter((emotion) => {
+                  return emotion.name === state.primaryEmotion;
+                })[0].list.filter((emotion2) => {
+                  return emotion2.name === state.secondaryEmotion
+                })[0].list.map((emotion3) => {
+                  return <MenuItem value={emotion3.name}>{emotion3.name}</MenuItem>
+                })}
+              </Select>
+            </FormControl>
           )}
           <TextField
-            autoFocus
             margin="dense"
             id="name"
-            label="Email Address"
-            type="email"
+            label="Belief Behind the Emotion"
+            // type="email"
+            variant="outlined"
             fullWidth
+            value={state.belief}
+            onChange={(e) => setState({ belief: e.target.value })}
           />
+          <div style={{ marginTop: 16 }}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Where Belief Comes From</FormLabel>
+              <RadioGroup aria-label="gender" name="gender1" value={state.beliefType} onChange={(e) => setState({ beliefType: e.target.value })}>
+                <FormControlLabel value="part" control={<Radio />} label="Part" />
+                <FormControlLabel value="authentic" control={<Radio />} label="Authentic Self" />
+              </RadioGroup>
+              <FormHelperText>The authentic self sounds calm, capable, and honest. It is truth. Parts sound shouty, mean, and unreasonable. They are false or half-truths.</FormHelperText>
+            </FormControl>
+          </div>
+          <div>
+            {state.beliefType && state.beliefType === "part" && (
+              <TextField
+                margin="dense"
+                id="name"
+                label="What Can You Tell the Part"
+                // type="email"
+                variant="outlined"
+                fullWidth
+                style={{ marginTop: 16 }}
+                value={state.tellPart}
+                onChange={(e) => setState({ tellPart: e.target.value })}
+              />
+            )}
+            {state.beliefType && state.beliefType === "authentic" && (
+              <TextField
+                margin="dense"
+                id="name"
+                label="What Action Can You Take"
+                // type="email"
+                variant="outlined"
+                fullWidth
+                style={{ marginTop: 16 }}
+                value={state.action}
+                onChange={(e) => setState({ action: e.target.value })}
+              />
+            )}
+          </div>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setModalOpen(false)} color="primary">
+          <Button onClick={() => setState({ modalOpen: false })} color="primary">
             Cancel
           </Button>
-          <Button onClick={() => setModalOpen(false)} color="primary">
-            Subscribe
+          <Button onClick={() => addEmotion()} color="primary">
+            Save Emotion
           </Button>
         </DialogActions>
       </Dialog>
