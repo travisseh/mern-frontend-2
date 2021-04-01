@@ -8,7 +8,7 @@ import { useHistory } from "react-router-dom";
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useTheme } from '@material-ui/core/styles';
 import emotionList3 from '../utils/emotionList3';
-import {capitalize} from '../utils/functions';
+import { capitalize } from '../utils/functions';
 
 
 import { Select, InputLabel, TextField, MenuItem, FormControl, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormLabel, RadioGroup, Radio, FormControlLabel, Card, CardActions, CardContent, Typography, Box, FormHelperText, Tabs, Tab } from '@material-ui/core';
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     // margin: theme.spacing(1),
-    minWidth: 120
+    minWidth: 120,
   },
   selectEmpty: {
     marginTop: theme.spacing(2)
@@ -47,7 +47,21 @@ const Home = () => {
 
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
-    { loading: true, data: null, primaryEmotion: '', secondaryEmotion: '', tertiaryEmotion: '', belief: '', beliefType: '', action: '', tellPart: '', selectedEmotion: '', modalOpen: false, emotions: [] }
+    { 
+    loading: true, 
+    primaryEmotion: '', 
+    secondaryEmotion: '', 
+    tertiaryEmotion: '', 
+    belief: '', 
+    beliefType: '', 
+    action: '', 
+    tellPart: '', 
+    selectedEmotion: '', 
+    modalOpen: false, 
+    emotions: [],
+    typeFilter: 'all',
+    filteredEmotions: [], 
+    }
   )
 
   const login = () => {
@@ -124,24 +138,44 @@ const Home = () => {
     e.target.style.color = 'black';
   }
 
+  const filterData = (data, filter) => {
+    if (filter === 'all'){
+      return data
+    }
+    return data.filter((item) => item.beliefType === filter)
+  }
+
   useEffect(() => {
     return getEmotions()
   }, [])
+
+  useEffect(() => {
+    const data = filterData(state.emotions, state.typeFilter)
+		setState({filteredEmotions: data });
+	}, [state.typeFilter, state.emotions]);
 
   return (
     <div className="App">
       <div id="header">Emotions</div>
       <div>
-        <Button onClick={() => logout()} variant="contained" color="primary" style={{marginTop: 16}}>Logout</Button>
-        <div>
+        <Button onClick={() => logout()} variant="contained" color="primary" style={{ marginTop: 16 }}>Logout</Button>
+        <div style={{marginTop: 16}}>
+          <FormControl variant="outlined" className={classes.formControl} size="small">
+            <InputLabel id="dem0-simple-select-outlined-label">Belief Type</InputLabel>
+            <Select value={state.typeFilter} onChange={(e) => setState({ typeFilter: e.target.value })} label="Belief Type">
+              <MenuItem value="all">All Types</MenuItem>
+              <MenuItem value="part">Part</MenuItem>
+              <MenuItem value="authentic">Authentic Self</MenuItem>
+            </Select>
+          </FormControl>
           <Button variant="outlined" color="primary" onClick={() => setState({ modalOpen: true })} style={{ marginTop: 16 }} >Add Emotion </Button>
         </div>
       </div>
-      {state.emotions.length > 0 ? (
+      {state.filteredEmotions.length > 0 ? (
         <Box m="auto" className={classes.box}>
-          {state.emotions.map(emotion => {
+          {state.filteredEmotions.map(emotion => {
             return (
-              
+
               <Card className={classes.card} variant="outlined">
                 <CardContent>
                   <Typography className={classes.pos} color="textSecondary" gutterBottom>
@@ -153,7 +187,7 @@ const Home = () => {
                   <Typography variant="body2" component="p">
                     {emotion.belief}
                   </Typography>
-                  <Typography variant="body2" component="p" style={{marginTop: 8}}>
+                  <Typography variant="body2" component="p" style={{ marginTop: 8 }}>
                     {emotion.beliefType === "authentic" ? emotion.action : emotion.tellPart}
                   </Typography>
                 </CardContent>
@@ -161,7 +195,7 @@ const Home = () => {
             )
           })}
         </Box>
-      ): (<div style={{marginTop: 24}}>Add an emotion to get started!</div>)}
+      ) : (<div style={{ marginTop: 24 }}>Add an emotion to get started!</div>)}
 
       <Dialog fullScreen={fullScreen} open={state.modalOpen} onClose={() => setState({ modalOpen: false })} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Add Emotion</DialogTitle>
