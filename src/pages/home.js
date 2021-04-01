@@ -160,7 +160,7 @@ const Home = () => {
       <div>
         <Button onClick={() => logout()} variant="contained" color="primary" style={{ marginTop: 16 }}>Logout</Button>
         <div style={{marginTop: 16}}>
-          <FormControl variant="outlined" className={classes.formControl} size="small">
+          <FormControl variant="outlined" className={classes.formControl} size="small" style={{marginRight: 16}}>
             <InputLabel id="dem0-simple-select-outlined-label">Belief Type</InputLabel>
             <Select value={state.typeFilter} onChange={(e) => setState({ typeFilter: e.target.value })} label="Belief Type">
               <MenuItem value="all">All Types</MenuItem>
