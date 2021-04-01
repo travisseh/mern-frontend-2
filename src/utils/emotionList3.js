@@ -237,6 +237,17 @@ const emotionList3 = [
           }
         ]
       },
+      {
+        name: "Gloomy",
+        list: [
+          {
+            name: "Hopless",
+          },
+          {
+            name: "Depressed",
+          }
+        ]
+      },
     ]
   },
   {
